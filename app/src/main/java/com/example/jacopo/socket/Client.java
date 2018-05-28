@@ -5,9 +5,8 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
-import android.view.View;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -36,8 +35,25 @@ import de.frank_durr.ecdh_curve25519.ECDHCurve25519;
 public class Client extends AppCompatActivity implements View.OnClickListener {
 
     public static final String PREFS_NAME = "MyPrefsFile";
-    public static final String TAG = ECDHCurve25519.class.getName();
+    public static final String TAG = Client.class.getSimpleName();
+
+    //Encryption variables
+    boolean createdKeys;
+    String plainText = "";
+    private EditText msg;
+    private byte[] client_secret_key;
+    private byte[] client_public_key;
+    byte[] client_shared_secret;
     volatile byte[] server_public_key;
+
+    public static final int SERVERPORT = 3000;
+
+    public static final String SERVER_IP = "192.168.43.235";
+    ClientThread clientRunnable;
+    Thread thread;
+    TextView messageTv;
+    private final String TAG_pub_client="pub_client";
+    private boolean hasReceivedKey=false;
 
 
     static {
@@ -55,29 +71,8 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
-    public static final String TAG_MAIN = Client.class.getSimpleName();
 
-    //Encryption variables
-    String cipherText = "";
-    boolean createdKeys;
-    String plainText = "";
-    private TextView textViewAliceSharedSecret;
-    private TextView textViewBobSharedSecret;
-    private EditText msg;
-    //private Test test = new Test();
-    private SecretKey secretKeyA;
-    private byte[] client_secret_key;
-    private byte[] client_public_key;
-    byte[] client_shared_secret;
 
-    public static final int SERVERPORT = 3000;
-
-    public static final String SERVER_IP = "192.168.43.235";
-    ClientThread clientRunnable;
-    Thread thread;
-    TextView messageTv;
-    private final String TAG_pub_client="pub_client";
-    private boolean hasReceivedKey=false;
 
     private void generateClientKeys() {
 
@@ -102,7 +97,7 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
     }
 
     public void generateShared(){
-        System.out.println("LUNGHEZZA:  "+server_public_key.length + "CLIENT" + client_secret_key.length);
+        //System.out.println("LUNGHEZZA:  "+server_public_key.length + "CLIENT" + client_secret_key.length);
         client_shared_secret = ECDHCurve25519.generate_shared_secret(
                 client_secret_key, server_public_key);
         try {
@@ -134,31 +129,6 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
         editor.putBoolean("createdKeys", false);
 
         editor.commit();
-
-       /* FloatingActionButton encrypt = (FloatingActionButton) findViewById(R.id.encrypt);
-        encrypt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                msg = (EditText) findViewById(R.id.message);
-                plainText = msg.getText().toString();
-                System.out.println("Original plaintext message: " + plainText);
-
-                // Encrypt the message using 'secretKeyA'
-                cipherText = test.encryptString(secretKeyA, plainText);
-                System.out.println("Encrypted cipher text: " + cipherText);
-
-                // Decrypt the message using 'secretKeyA'
-                String decryptedPlainText = test.decryptString(secretKeyA, cipherText);
-                System.out.println("Decrypted cipher text: " + decryptedPlainText);
-
-                textViewAliceSharedSecret = (TextView) findViewById(R.id.alice_secret);
-                textViewBobSharedSecret = (TextView) findViewById(R.id.bob_secret);
-
-                textViewAliceSharedSecret.setText(cipherText);
-                textViewBobSharedSecret.setText(decryptedPlainText);
-            }
-        });*/
-
     }
 
     public void updateMessage(final String message) {
@@ -175,16 +145,8 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
 
         if (view.getId() == R.id.connect_server) {
             messageTv.setText("");
-            //clientRunnable = new ClientThread();
-            //thread = new Thread(clientRunnable);
-            //thread.start();
             return;
         }
-
-        /*if(view.getId() == R.id.send_shared_key){
-            Log.d(TAG, "Sendind public keys...");
-            thread.start();
-        }*/
 
         if (view.getId() == R.id.send_data) {
             SecretKey originalKey = new SecretKeySpec(client_shared_secret, 0, client_shared_secret.length, "AES");
@@ -204,14 +166,9 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
         public void run() {
 
             try {
-                System.out.println("IN RUN");
+                //System.out.println("IN RUN");
                 InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
                 socket = new Socket(serverAddr, SERVERPORT);
-                //PrintWriter out = new PrintWriter(new BufferedWriter(
-                        //new OutputStreamWriter(socket.getOutputStream())),
-                        //true);
-                //out.println(new String(client_public_key,"UTF-8"));
-                //out.println(client_public_key+"");
                 if(!hasReceivedKey){
                     DataOutputStream d = new DataOutputStream(socket.getOutputStream());
                     d.writeInt(client_public_key.length);
@@ -225,13 +182,11 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
 
                 }
 
-
-
                 while (!Thread.currentThread().isInterrupted()) {
 
                     Log.i(TAG, "Waiting for message from server...");
 
-                    this.input = new DataInputStream(socket.getInputStream());//String message = input.readLine();
+                    this.input = new DataInputStream(socket.getInputStream());
 
                     if(!hasReceivedKey){
                         int length = input.readInt();
@@ -242,9 +197,9 @@ public class Client extends AppCompatActivity implements View.OnClickListener {
                                 Thread.sleep(1000);
                             }
                         }
-                        System.out.println("FUORI DAL WHILE:"+ server_public_key);
+                        //System.out.println("FUORI DAL WHILE:"+ server_public_key);
                         generateShared();
-                        System.out.println("LEONISIOOOO_CLIENT");
+                        //System.out.println("LEONISIOOOO_CLIENT");
 
                     } else {
                         BufferedReader input_mex = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));

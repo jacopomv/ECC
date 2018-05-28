@@ -7,10 +7,8 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -41,13 +39,19 @@ import de.frank_durr.ecdh_curve25519.ECDHCurve25519;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String PREFS_NAME = "MyPrefsFile";
-    public static final String TAG = ECDHCurve25519.class.getName();
-
-
-    //Encryption variables
-    String cipherText = "";
+    public static final String TAG = MainActivity.class.getSimpleName();
+    private ServerSocket serverSocket;
+    private Socket tempClientSocket;
     boolean createdKeys;
-    private Test test = new Test();
+    Thread serverThread = null;
+    public static final int SERVER_PORT = 3000;
+    TextView messageTv;
+    private String TAG_pub_server="pub_server";
+    byte[] server_public_key;
+    byte[] client_public_key;
+    byte[] server_secret_key;
+    byte[] server_shared_secret;
+    private boolean hasReceivedKey=false;
 
     static {
         // Load native library ECDH-Curve25519-Mobile implementing Diffie-Hellman key
@@ -64,20 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
     }
 
-    public static final String TAG_MAIN = MainActivity.class.getSimpleName();
 
-
-    private ServerSocket serverSocket;
-    private Socket tempClientSocket;
-    Thread serverThread = null;
-    public static final int SERVER_PORT = 3000;
-    TextView messageTv;
-    private String TAG_pub_server="pub_server";
-    byte[] server_public_key;
-    byte[] client_public_key;
-    byte[] server_secret_key;
-    byte[] server_shared_secret;
-    private boolean hasReceivedKey=false;
 
     private void generateServerKeys() {
 
@@ -103,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     private void generateShared(){
         //Generating Server shared key
-        System.out.println("LUNGHEZZA:  "+client_public_key.length+"SERVER LENGHT:"+server_secret_key);
+        //System.out.println("LUNGHEZZA:  "+client_public_key.length+"SERVER LENGHT:"+server_secret_key);
         server_shared_secret = ECDHCurve25519.generate_shared_secret(
                 server_secret_key, client_public_key);
         try {
@@ -123,9 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         messageTv = (TextView) findViewById(R.id.messageTv);
 
-        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         String ip = MainActivity.getIPAddress(true);
-        //String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
         System.out.println("IP ADD: "+ ip);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -147,11 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View view) {/*
-        if(view.getId() == R.id.send_shared_key){
-            Log.d(TAG, "Sendind public keys...");
-            this.serverThread.start();
-        }*/
+    public void onClick(View view) {
         if (view.getId() == R.id.send_data) {
             sendMessage("Hello from Server...");
         }
@@ -188,10 +173,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     try {
                         socket = serverSocket.accept();
                         CommunicationThread commThread = new CommunicationThread(socket);
-                        /*PrintWriter out = new PrintWriter(new BufferedWriter(
-                                new OutputStreamWriter(tempClientSocket.getOutputStream())),
-                                true);
-                        out.println(new String(server_public_key,"UTF-8"));*/
                         DataOutputStream d = new DataOutputStream(socket.getOutputStream());
                         d.writeInt(server_public_key.length);
                         d.write(server_public_key);
@@ -237,7 +218,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             client_public_key = new byte[length];
                             input.readFully(client_public_key,0,client_public_key.length);
                         }
-                        //client_public_key=read;
 
                         Log.i(TAG, "Message received from the client : " + client_public_key);
                         hasReceivedKey=true;
@@ -246,14 +226,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         }
                         generateShared();
-                        System.out.println("LEONISIOOOO");
+                        //System.out.println("LEONISIOOOO");
 
                     }else {
 
                         BufferedReader input_mex = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
                         String read = input_mex.readLine();
                         SecretKey originalKey = new SecretKeySpec(server_shared_secret, 0, server_shared_secret.length, "AES");
-                        String mex=test.decryptString(originalKey,read);
+                        String mex=Test.decryptString(originalKey,read);
                         Log.i(TAG, "Message Received from Client : " + mex);
 
                         if (null == read || "Disconnect".contentEquals(read)) {

@@ -18,42 +18,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Test {
-    public static byte[] iv = "foss35bche747f7h".getBytes();
-    //public byte[] iv = new SecureRandom().generateSeed(32);
-    /*
-    public KeyPair generateECKeys() {
-        try {
-            ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec("brainpoolp256r1");
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(
-                    "ECDH", "BC");
+    //public static byte[] iv = "foss35bche747f7h".getBytes();
+    public static byte[] iv = new SecureRandom().generateSeed(32);
 
-            keyPairGenerator.initialize(parameterSpec);
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-
-            return keyPair;
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException
-                | NoSuchProviderException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public SecretKey generateSharedSecret(PrivateKey privateKey,
-                                          PublicKey publicKey) {
-        try {
-            KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH", "SC");
-            keyAgreement.init(privateKey);
-            keyAgreement.doPhase(publicKey, true);
-
-            SecretKey key = keyAgreement.generateSecret("AES");
-            return key;
-        } catch (InvalidKeyException | NoSuchAlgorithmException
-                | NoSuchProviderException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        }
-    }*/
 
     public static String encryptString(SecretKey key, String plainText) {
         try {
