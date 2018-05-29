@@ -7,9 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -35,9 +33,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import de.frank_durr.ecdh_curve25519.ECDHCurve25519;
 
-public class ServerActivity extends AppCompatActivity implements View.OnClickListener {
+public class ServerActivity extends AppCompatActivity {
 
-    public static final String PREFS_NAME = "MyPrefsFile";
     public static final String TAG = ServerActivity.class.getSimpleName();
     private ServerSocket serverSocket;
     private Socket tempClientSocket;
@@ -51,7 +48,7 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
     byte[] server_secret_key;
     byte[] server_shared_secret;
     private boolean hasReceivedKey=false;
-    private Test test=new Test();
+    private IVGen IVGen =new IVGen();
 
     static {
         // Load native library ECDH-Curve25519-Mobile implementing Diffie-Hellman key
@@ -95,7 +92,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
     }
     private void generateShared(){
         //Generating Server shared key
-        //System.out.println("LUNGHEZZA:  "+client_public_key.length+"SERVER LENGHT:"+server_secret_key);
         server_shared_secret = ECDHCurve25519.generate_shared_secret(
                 server_secret_key, client_public_key);
         try {
@@ -126,9 +122,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
         this.serverThread = new Thread(new ServerRunnable());
         this.serverThread.start();
 
-        //Intent myIntent = getIntent(); // gets the previously created intent
-        //firstKeyName = myIntent.getByteArrayExtra("iv");
-
     }
 
     public void updateMessage(final String message) {
@@ -140,17 +133,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.send_data) {
-            sendMessage("Hello from Server...");
-        }
-        /*if(view.getId() == R.id.switchToC){
-            Intent intent=new Intent(ServerActivity.this,ClientActivity.class);
-            intent.putExtra("test",firstKeyName);
-            ServerActivity.this.startActivity(intent);
-        }*/
-    }
 
     private void sendMessage(String message) {
         try {
@@ -183,8 +165,8 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
                         DataOutputStream d = new DataOutputStream(socket.getOutputStream());
                         d.writeInt(server_public_key.length);
                         d.write(server_public_key);
-                        d.writeInt(test.getIv().length);
-                        d.write(test.getIv());
+                        d.writeInt(IVGen.getIv().length);
+                        d.write(IVGen.getIv());
                         new Thread(commThread).start();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -236,15 +218,13 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
 
                         }
                         generateShared();
-                        //System.out.println("LEONISIOOOO");
 
                     }else {
 
                         BufferedReader input_mex = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
                         String read = input_mex.readLine();
                         SecretKey originalKey = new SecretKeySpec(server_shared_secret, 0, server_shared_secret.length, "AES");
-                        String mex=Util.decryptString(originalKey,read,test.getIv());
-                        //Log.i(TAG, "IV ClientActivity : " + test.iv);
+                        String mex=Util.decryptString(originalKey,read, IVGen.getIv());
 
                         Log.i(TAG, "Message Received from ClientActivity : " + mex);
 
@@ -317,9 +297,5 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
             }
         } catch (Exception ex) { } // for now eat exceptions
         return "";
-    }
-
-    public void setTest(byte[] iv){
-
     }
 }

@@ -1,6 +1,7 @@
 package com.example.jacopo.socket;
 
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -19,8 +20,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Util {
+    public static final String TAG = Util.class.getSimpleName();
+
     public static String encryptString(SecretKey key, String plainText, byte[] iv) {
-        System.out.println("CHIAVE IN ENCRYPT " + Base64.encodeToString(iv,1));
+        Log.i(TAG,"ENCRYPT KEY" + Base64.encodeToString(iv, 1));
 
         try {
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
@@ -46,7 +49,7 @@ public class Util {
     }
 
     public static String decryptString(SecretKey key, String cipherText, byte[] iv) {
-        System.out.println("CHIAVE IN DECRYPT " + Base64.encodeToString(iv,1));
+        Log.i(TAG,"DECRYPT KEY" + Base64.encodeToString(iv, 1));
         try {
             Key decryptionKey = new SecretKeySpec(key.getEncoded(),
                     key.getAlgorithm());

@@ -2,8 +2,6 @@ package com.example.jacopo.socket;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -23,13 +21,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         if (view.getId() == R.id.switchToServer) {
             Intent intent=new Intent(MainActivity.this,ServerActivity.class);
-            //intent.putExtra("iv",test.getIv());
             MainActivity.this.startActivity(intent);
 
         }
         if(view.getId() == R.id.switchToC){
             Intent intent=new Intent(MainActivity.this,ClientActivity.class);
-            //intent.putExtra("iv",test.getIv());
             MainActivity.this.startActivity(intent);
         }
     }

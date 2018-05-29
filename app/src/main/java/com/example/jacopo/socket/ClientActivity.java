@@ -1,6 +1,5 @@
 package com.example.jacopo.socket;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -17,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -25,7 +23,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.text.SimpleDateFormat;
@@ -52,13 +49,12 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
 
     public static final int SERVERPORT = 3000;
 
-    public static final String SERVER_IP = "192.168.43.71";
+    public static final String SERVER_IP = "192.168.43.235";
     ClientThread clientRunnable;
     Thread thread;
     TextView messageTv;
     private final String TAG_pub_client="pub_client";
     private boolean hasReceivedKey=false;
-    byte [] firstKeyName;
     byte [] iv;
 
 
@@ -102,7 +98,6 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void generateShared(){
-        //System.out.println("LUNGHEZZA:  "+server_public_key.length + "CLIENT" + client_secret_key.length);
         client_shared_secret = ECDHCurve25519.generate_shared_secret(
                 client_secret_key, server_public_key);
         try {
@@ -129,14 +124,6 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         clientRunnable = new ClientThread();
         thread = new Thread(clientRunnable);
         thread.start();
-
-        //Intent myIntent = getIntent(); // gets the previously created intent
-        //firstKeyName = myIntent.getByteArrayExtra("iv");
-        //byte[] iv = new SecureRandom().generateSeed(32);
-        //test=new Test(firstKeyName);
-
-
-
         msg = (EditText) findViewById(R.id.message);
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
@@ -158,17 +145,10 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
 
-        /*if (view.getId() == R.id.connect_server) {
-            messageTv.setText("");
-            return;
-        }*/
-
         if (view.getId() == R.id.send_data) {
             SecretKey originalKey = new SecretKeySpec(client_shared_secret, 0, client_shared_secret.length, "AES");
 
             String encrypted=Util.encryptString(originalKey,msg.getText().toString(),iv);
-            //Log.i(TAG, "IV : " + test.iv);
-
             Log.i(TAG, "Message encrypted : " + encrypted);
             clientRunnable.sendMessage(encrypted);
         }
@@ -183,7 +163,6 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
         public void run() {
 
             try {
-                //System.out.println("IN RUN");
                 InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
                 socket = new Socket(serverAddr, SERVERPORT);
                 if(!hasReceivedKey){
@@ -217,17 +196,12 @@ public class ClientActivity extends AppCompatActivity implements View.OnClickLis
                                 Thread.sleep(1000);
                             }
                         }
-                        //System.out.println("FUORI DAL WHILE:"+ server_public_key);
                         generateShared();
-                        //System.out.println("LEONISIOOOO_CLIENT");
 
                     } else {
                         BufferedReader input_mex = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                         String message = input_mex.readLine();
-                        //String mex=test.decryptString(secretKeyA,read);
                         Log.i(TAG, "Message Received from ClientActivity : " + message);
-
-
                         Log.i(TAG, "Message received from the server : " + message);
 
                         if (null == message || "Disconnect".contentEquals(message)) {
