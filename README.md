@@ -18,6 +18,6 @@ The Goal of this project is to realise a message exchange system able to take in
 Linkedin:
  * [Jacopo Maria Valtorta](https://www.linkedin.com/in/jacopo-maria-valtorta)
  
-[To be upload...]
+[To be uploaded...]
 
 SlideShare: [ECC]()
