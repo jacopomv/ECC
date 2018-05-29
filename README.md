@@ -4,7 +4,7 @@ A project which implements the Elliptic Curve Cryptography for the Diffie-Hellma
 
 # How does it work?
 The architecture is conceptually divided into two parts:
-* a Client: it sends the messages that are automatically encrypted with the common pre-shared key.
+* a Client sends the messages that are automatically encrypted with the common pre-shared key.
 * a Server which receives the messages encrypted, it decrypts them through the same shared key and it displays them on the screen.
 
 ## Implementation
