@@ -12,7 +12,7 @@ The architecture is conceptually divided into two parts:
 At the hardware level, the connection is implemented through sockets and threads, one for each part.
 
 # Goal of this project
-The Goal of this project is to realise a message exchange system able to take into account the advantages of the Elliptic Curve cryptography which can be a great replacement of the well known RSA one, expecially in the IoT area.
+The Goal of this project is to realise a message exchange system able to take into account the advantages of the Elliptic Curve cryptography system, which can be a great replacement of the well known RSA, especially in the IoT area.
 
 # Contact
 Linkedin:
