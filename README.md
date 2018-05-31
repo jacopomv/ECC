@@ -18,4 +18,5 @@ The Goal of this project is to realise a message exchange system able to take in
 Linkedin:
  * [Jacopo Maria Valtorta](https://www.linkedin.com/in/jacopo-maria-valtorta)
 
-SlideShare: [ECC Message Exchange](https://www.slideshare.net/JacopoMariaValtorta/elliptic-curve-cryptography-message-exchange)
+SlideShare: 
+  * [ECC Message Exchange](https://www.slideshare.net/JacopoMariaValtorta/elliptic-curve-cryptography-message-exchange)
