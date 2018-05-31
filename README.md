@@ -1,6 +1,6 @@
 # ECC
 
-A project which implements the Elliptic Curve Cryptography for the Diffie-Hellman keys exchange inside an Android device.
+A project which implements the Elliptic Curve Cryptography for the Diffie-Hellman keys exchange, in order to establish a secure channel between two Android devices.
 
 # How does it work?
 The architecture is conceptually divided into two parts:
