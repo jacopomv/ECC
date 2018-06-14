@@ -1,6 +1,6 @@
 # ECC
 
-ECC is a project implementing the Elliptic Curve Cryptography standard for the Diffie-Hellman keys exchange, in order to establish a secure channel between two Android devices.
+ECC is a single project developed during the Pervasive Systems course at "La Sapienza" University of Rome, implementing the Elliptic Curve Cryptography standard for the Diffie-Hellman keys exchange, in order to establish a secure channel between two Android devices.
 
 # How does it work?
 ## Architecture
@@ -26,3 +26,5 @@ Linkedin:
 # Check out the project presentation
 SlideShare: 
   * [ECC Message Exchange](https://www.slideshare.net/JacopoMariaValtorta/elliptic-curve-cryptography-message-exchange)
+#
+![](img/Uniroma1.png)
