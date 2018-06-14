@@ -16,6 +16,9 @@ Then, the client starts the communication by sending any message, that is automa
 ## Implementation
 The connection, at software level, is implemented through sockets and threads, one for each part, which allow the communication between the client and server. Obviously, both the parties need to be connected to the same LAN, otherwise the protocol can't establish a correct connection.
 
+# Demo
+[Demo - YouTube](https://youtu.be/SlZnIFITR1M)
+
 # Goal of this project
 The Goal of this project is to realise a message exchange system able to take into account the advantages of the Elliptic Curve cryptography system, which can be a great replacement of the well known RSA, especially in the IoT area.
 
